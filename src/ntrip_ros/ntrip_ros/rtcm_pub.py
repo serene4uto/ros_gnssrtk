@@ -68,7 +68,7 @@ class RTCMPubNode(Node):
         try:
             raw_data, parsed_data = self.ntrip_queue.get()
             if protocol(raw_data) == RTCM3_PROTOCOL:
-                self.get_logger().info("Message received: {}".format(parsed_data))
+                # self.get_logger().info("Message received: {}".format(parsed_data))
                 # self.rtcm_ctn +=1
                 rtcm_msg = Message()
                 rtcm_msg.message = raw_data

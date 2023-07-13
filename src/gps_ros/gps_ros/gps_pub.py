@@ -27,7 +27,7 @@ class GPSPubNode(Node):
     def __init__(self):
         super().__init__('gps_pub_node')
 
-        self.gps_pub = self.create_publisher(NavSatFix, 'fix', 1)
+        self.gps_pub = self.create_publisher(NavSatFix, 'fix', 10)
         self.rtcm_sub = self.create_subscription(Message, '/rtcm', self.onReceiveRTCMCallBack, 1)
 
         self.ntrip_queue = Queue()
