@@ -7,6 +7,7 @@ from serial import Serial
 from threading import Event, Lock, Thread
 from queue import Queue
 from time import sleep
+from time import time
 
 from io import BufferedReader
 from pyrtcm import RTCM_MSGIDS
