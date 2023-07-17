@@ -16,7 +16,8 @@ from pygnssutils import haversine
 
 SERIAL_PORT = "/dev/ttyACM0"
 # BAUDRATE = 38400
-BAUDRATE = 115200
+# BAUDRATE = 115200
+BAUDRATE = 921600
 TIMEOUT = 0.1
 
 # Fixed reference coordinates (used when GGAMODE = 1) - AMEND AS REQUIRED:
