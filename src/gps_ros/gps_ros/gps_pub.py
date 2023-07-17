@@ -31,6 +31,8 @@ class GPSPubNode(Node):
         self.gps_pub = self.create_publisher(NavSatFix, 'fix', 10)
         self.rtcm_sub = self.create_subscription(Message, '/rtcm', self.onReceiveRTCMCallBack, 1)
         self.rate = self.create_rate(100)
+        self.last_time = time()
+        self.pkt_cnt = 0
 
         self.ntrip_queue = Queue()
         self.gnss_queue = Queue()
@@ -113,7 +115,7 @@ class GPSPubNode(Node):
                     lock.release()
                     if parsed_data:
                         idy = parsed_data.identity
-                        if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon"):
+                        if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "alt"):
                             lat = parsed_data.lat
                             lon = parsed_data.lon
                             dev = haversine(lat, lon, REFLAT, REFLON) * 1000  # meters
@@ -121,6 +123,12 @@ class GPSPubNode(Node):
                                 f"Receiver coordinates: {lat}, {lon}\r\n")
                             self.get_logger().info(
                                 f"Approximate deviation from fixed ref: {dev:06,f} m")
+                            
+                            self.pkt_cnt += 1
+                            if self.pkt_cnt == 100:
+                                self.get_logger().info(f"Sample Rate: {float(self.pkt_cnt / (time() - self.last_time))} Hz")
+                                self.pkt_cnt = 0
+                                self.last_time = time()
     
                             navsat_fix_msg = NavSatFix()
                             t = self.get_clock().now()
