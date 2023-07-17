@@ -14,7 +14,8 @@ from pyubx2 import NMEA_PROTOCOL, RTCM3_PROTOCOL, UBX_PROTOCOL, UBXReader, proto
 from pygnssutils import haversine
 
 SERIAL_PORT = "/dev/ttyACM0"
-BAUDRATE = 38400
+# BAUDRATE = 38400
+BAUDRATE = 115200
 TIMEOUT = 0.1
 
 # Fixed reference coordinates (used when GGAMODE = 1) - AMEND AS REQUIRED:
