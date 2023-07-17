@@ -30,6 +30,7 @@ class GPSPubNode(Node):
 
         self.gps_pub = self.create_publisher(NavSatFix, 'fix', 10)
         self.rtcm_sub = self.create_subscription(Message, '/rtcm', self.onReceiveRTCMCallBack, 1)
+        self.rate = self.create_rate(100)
 
         self.ntrip_queue = Queue()
         self.gnss_queue = Queue()
@@ -68,7 +69,8 @@ class GPSPubNode(Node):
 
                 while not self.stop.is_set():  # run until user presses CTRL-C
                     rclpy.spin_once(self)
-                    sleep(1)
+                    # sleep(1)
+                    self.rate.sleep()
                 sleep(1)
         except KeyboardInterrupt:
             self.stop.set()
