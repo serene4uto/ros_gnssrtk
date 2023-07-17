@@ -119,11 +119,12 @@ class GPSPubNode(Node):
                         if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "alt"):
                             lat = parsed_data.lat
                             lon = parsed_data.lon
-                            dev = haversine(lat, lon, REFLAT, REFLON) * 1000  # meters
-                            self.get_logger().info(
-                                f"Receiver coordinates: {lat}, {lon}\r\n")
-                            self.get_logger().info(
-                                f"Approximate deviation from fixed ref: {dev:06,f} m")
+                            alt = parsed_data.alt
+                            # dev = haversine(lat, lon, REFLAT, REFLON) * 1000  # meters
+                            # self.get_logger().info(
+                            #     f"Receiver coordinates: {lat}, {lon}\r\n")
+                            # self.get_logger().info(
+                            #     f"Approximate deviation from fixed ref: {dev:06,f} m")
                             
                             self.pkt_cnt += 1
                             if self.pkt_cnt == 100:
@@ -137,6 +138,7 @@ class GPSPubNode(Node):
                             navsat_fix_msg.header.frame_id = "gps_sensor"
                             navsat_fix_msg.latitude = lat
                             navsat_fix_msg.longitude = lon
+                            navsat_fix_msg.altitude = alt
 
                             self.gps_pub.publish(navsat_fix_msg)                    
                         
