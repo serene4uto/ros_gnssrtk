@@ -121,17 +121,17 @@ class GPSPubNode(Node):
                             lat = parsed_data.lat
                             lon = parsed_data.lon
                             alt = parsed_data.alt
-                            # dev = haversine(lat, lon, REFLAT, REFLON) * 1000  # meters
-                            # self.get_logger().info(
-                            #     f"Receiver coordinates: {lat}, {lon}\r\n")
-                            # self.get_logger().info(
-                            #     f"Approximate deviation from fixed ref: {dev:06,f} m")
+                            dev = haversine(lat, lon, REFLAT, REFLON) * 1000  # meters
+                            self.get_logger().info(
+                                f"Receiver coordinates: {lat}, {lon}\r\n")
+                            self.get_logger().info(
+                                f"Approximate deviation from fixed ref: {dev:06,f} m")
                             
-                            self.pkt_cnt += 1
-                            if self.pkt_cnt == 100:
-                                self.get_logger().info(f"Sample Rate: {float(self.pkt_cnt / (time() - self.last_time))} Hz")
-                                self.pkt_cnt = 0
-                                self.last_time = time()
+                            # self.pkt_cnt += 1
+                            # if self.pkt_cnt == 100:
+                            #     self.get_logger().info(f"Sample Rate: {float(self.pkt_cnt / (time() - self.last_time))} Hz")
+                            #     self.pkt_cnt = 0
+                            #     self.last_time = time()
     
                             navsat_fix_msg = NavSatFix()
                             t = self.get_clock().now()
