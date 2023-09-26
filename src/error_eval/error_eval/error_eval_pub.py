@@ -2,6 +2,7 @@ import haversine
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix, NavSatStatus
+from std_msgs.msg import String
 import logging
 import os
 from datetime import datetime
@@ -13,8 +14,8 @@ LOG_PATH = '.log'
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S,%z'
+    format='%(asctime)s,%(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,12 @@ class ErrorEval(Node):
             '/fix',
             self.gps_rx_callback,
             10)
+        
+        self.navpvt_sub = self.create_subscription(
+            String,
+            '/navpvt',
+            self.navpvt_rx_callback,
+            10)
 
         # calculate reference point from base coordinates and bearing
         self.sub_base = {}
@@ -92,13 +99,13 @@ class ErrorEval(Node):
         if self.log_enable:
             file_handler = logging.FileHandler(os.path.join(LOG_PATH, f'error_eval_{current_time}.csv'))
             file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+            file_handler.setFormatter(logging.Formatter('%(asctime)s,%(message)s'))
             logger.addHandler(file_handler)
         
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
-        stream_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
-        logger.addHandler(stream_handler)
+        # stream_handler = logging.StreamHandler()
+        # stream_handler.setLevel(logging.INFO)
+        # stream_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+        # logger.addHandler(stream_handler)
 
         if self.val_plot:
             threading.Thread(target=self.plot_thread, daemon=True).start()
@@ -107,20 +114,15 @@ class ErrorEval(Node):
 
     def plot_thread(self):
         pass
-        
+    
+    def navpvt_rx_callback(self, navpvt_msg):
+        logger.info(navpvt_msg.data)
+        pass
+
         
     def gps_rx_callback(self, navsat_msg):
 
         utm_easting, utm_northing = get_utm_coordinates(navsat_msg.latitude, navsat_msg.longitude)
-
-        # self.eval_gnss.append({
-        #     'time': float(navsat_msg.header.stamp.sec) + float(navsat_msg.header.stamp.nanosec) / 1e9,
-        #     'lat': navsat_msg.latitude,
-        #     'lon': navsat_msg.longitude,
-        #     'alt': float(navsat_msg.altitude),
-        #     'utm_easting' : utm_easting,
-        #     'utm_northing' : utm_northing,
-        # })
 
         hpe = np.array(
         [   float(utm_easting) - float(self.sub_base['utm_easting']) ,
