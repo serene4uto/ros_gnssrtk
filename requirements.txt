@@ -1,3 +1,4 @@
 pyrtcm
 pygnssutils
 pyubx2
+haversine
