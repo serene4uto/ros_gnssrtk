@@ -3,6 +3,8 @@ from rclpy.node import Node
 
 from sensor_msgs.msg import NavSatFix
 
+from std_msgs.msg import String
+
 from queue import Queue
 from threading import Event
 from time import sleep
@@ -38,6 +40,7 @@ class GnssRtkPub(Node):
     def __init__(self):
         super().__init__('gnssrtk_pub')
         self.gnss_pub = self.create_publisher(NavSatFix, '/fix', 10)
+        self.navpvt_pub = self.create_publisher(String, '/navpvt', 10)  # for debugging
 
         self.send_queue = Queue()
         self.receive_queue = Queue()
@@ -116,6 +119,10 @@ class GnssRtkPub(Node):
 
                                         # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
                                         self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
+
+                                        navpvt_msg = String()
+                                        navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
+                                        self.navpvt_pub.publish(navpvt_msg)
                                 
                                 elif idy == 'NAV-SAT':
                                     pass
