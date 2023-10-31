@@ -19,10 +19,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# base_coordinates = {
+#     'lat': 35.885136,
+#     'lon': 128.604986,
+#     'alt': 0,
+# }
+
 base_coordinates = {
-    'lat': 35.885136,
-    'lon': 128.604986,
-    'alt': 0,
+    'lat': 35.990389,
+    'lon': 128.925528,
+    'alt': 96.4,
 }
 
 base_distance = 0 # meters
@@ -129,9 +135,11 @@ class ErrorEval(Node):
             float(utm_northing) - float(self.sub_base['utm_northing']) ]
         )
 
+        hpe_dist = np.sqrt(np.sum(hpe**2))
+
         vpe = abs(float(self.sub_base['alt']) - float(navsat_msg.altitude))
 
-        self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}, hpe: {hpe}, vpe: {vpe}')
+        self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}, hpe: {hpe}, hpe_dist: {hpe_dist}, vpe: {vpe}')
 
 
 
