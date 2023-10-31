@@ -15,7 +15,7 @@ from .gnssapp import GNSSSkeletonApp
 
 # GNSS receiver serial port parameters - AMEND AS REQUIRED:
 SERIAL_PORT = "/dev/ttyACM0"
-BAUDRATE = 38400
+BAUDRATE = 115200
 TIMEOUT = 10
 # NTRIP caster parameters - AMEND AS REQUIRED:
 # Ideally, mountpoint should be <30 km from location.
