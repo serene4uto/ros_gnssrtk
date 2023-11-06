@@ -127,7 +127,7 @@ class ErrorEval(Node):
 
         
     def gps_rx_callback(self, navsat_msg):
-        self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}')
+        logger.info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}')
 
         # utm_easting, utm_northing = get_utm_coordinates(navsat_msg.latitude, navsat_msg.longitude)
 
