@@ -76,7 +76,7 @@ class GnssRtkPub(Node):
                 verbose=False,
             ) as gna:
                 gna.run()
-                sleep(2)  # wait for receiver to output at least 1 navigation solution
+                # sleep(2)  # wait for receiver to output at least 1 navigation solution
 
                 print(f"Starting NTRIP client on {NTRIP_SERVER}:{NTRIP_PORT}...\n")
                 with GNSSNTRIPClient(gna, verbosity=VERBOSITY_LOW) as gnc:
