@@ -74,11 +74,11 @@ class ErrorEval(Node):
             self.gps_rx_callback,
             10)
         
-        self.navpvt_sub = self.create_subscription(
-            String,
-            '/navpvt',
-            self.navpvt_rx_callback,
-            10)
+        # self.navpvt_sub = self.create_subscription(
+        #     String,
+        #     '/navpvt',
+        #     self.navpvt_rx_callback,
+        #     10)
 
         # calculate reference point from base coordinates and bearing
         self.sub_base = {}
@@ -113,8 +113,8 @@ class ErrorEval(Node):
         # stream_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
         # logger.addHandler(stream_handler)
 
-        if self.val_plot:
-            threading.Thread(target=self.plot_thread, daemon=True).start()
+        # if self.val_plot:
+        #     threading.Thread(target=self.plot_thread, daemon=True).start()
 
 
 
@@ -127,19 +127,20 @@ class ErrorEval(Node):
 
         
     def gps_rx_callback(self, navsat_msg):
+        self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}')
 
-        utm_easting, utm_northing = get_utm_coordinates(navsat_msg.latitude, navsat_msg.longitude)
+        # utm_easting, utm_northing = get_utm_coordinates(navsat_msg.latitude, navsat_msg.longitude)
 
-        hpe = np.array(
-        [   float(utm_easting) - float(self.sub_base['utm_easting']) ,
-            float(utm_northing) - float(self.sub_base['utm_northing']) ]
-        )
+        # hpe = np.array(
+        # [   float(utm_easting) - float(self.sub_base['utm_easting']) ,
+        #     float(utm_northing) - float(self.sub_base['utm_northing']) ]
+        # )
 
-        hpe_dist = np.sqrt(np.sum(hpe**2))
+        # hpe_dist = np.sqrt(np.sum(hpe**2))
 
-        vpe = abs(float(self.sub_base['alt']) - float(navsat_msg.altitude))
+        # vpe = abs(float(self.sub_base['alt']) - float(navsat_msg.altitude))
 
-        self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}, hpe: {hpe}, hpe_dist: {hpe_dist}, vpe: {vpe}')
+        # self.get_logger().info(f'lat: {navsat_msg.latitude}, lon: {navsat_msg.longitude}, alt: {navsat_msg.altitude}, hpe: {hpe}, hpe_dist: {hpe_dist}, vpe: {vpe}')
 
 
 

@@ -30,7 +30,7 @@ NTRIP_USER = "kde1054@naver.com"
 NTRIP_PASSWORD = "gnss"
 # NMEA GGA sentence status - AMEND AS REQUIRED:
 GGAMODE = 0  # use fixed reference position (0 = use live position)
-GGAINT = 60  # interval in seconds (-1 = do not send NMEA GGA sentences)
+GGAINT = -1  # interval in seconds (-1 = do not send NMEA GGA sentences)
 # Fixed reference coordinates (only used when GGAMODE = 1) - AMEND AS REQUIRED:
 REFLAT = 51.176534
 REFLON = -2.15453
@@ -53,9 +53,9 @@ class GnssRtkPub(Node):
     def __init__(self):
         super().__init__('gnssrtk_pub')
         self.gnss_pub = self.create_publisher(NavSatFix, '/fix', 10)
-        self.navpvt_pub = self.create_publisher(String, '/navpvt', 10)  # for debugging
-        self.accel_pub = self.create_publisher(String, '/esfmeas/accel', 10)  # for debugging
-        self.gyro_pub = self.create_publisher(String, '/esfmeas/gyro', 10)  # for debugging
+        # self.navpvt_pub = self.create_publisher(String, '/navpvt', 10)  # for debugging
+        # self.accel_pub = self.create_publisher(String, '/esfmeas/accel', 10)  # for debugging
+        # self.gyro_pub = self.create_publisher(String, '/esfmeas/gyro', 10)  # for debugging
 
         self.send_queue = Queue()
         self.receive_queue = Queue()
@@ -76,7 +76,7 @@ class GnssRtkPub(Node):
                 verbose=False,
             ) as gna:
                 gna.run()
-                sleep(2)  # wait for receiver to output at least 1 navigation solution
+                # sleep(2)  # wait for receiver to output at least 1 navigation solution
 
                 print(f"Starting NTRIP client on {NTRIP_SERVER}:{NTRIP_PORT}...\n")
                 with GNSSNTRIPClient(gna, verbosity=VERBOSITY_LOW) as gnc:
@@ -89,11 +89,11 @@ class GnssRtkPub(Node):
                         mountpoint=MOUNTPOINT,
                         ntripuser=NTRIP_USER,  # pygnssutils>=1.0.12
                         ntrippassword=NTRIP_PASSWORD,  # pygnssutils>=1.0.12
-                        reflat=REFLAT,
-                        reflon=REFLON,
-                        refalt=REFALT,
-                        refsep=REFSEP,
-                        ggamode=GGAMODE,
+                        # reflat=REFLAT,
+                        # reflon=REFLON,
+                        # refalt=REFALT,
+                        # refsep=REFSEP,
+                        # ggamode=GGAMODE,
                         ggainterval=GGAINT,
                         output=self.send_queue,
                     )
@@ -139,45 +139,45 @@ class GnssRtkPub(Node):
                                         navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
                                         self.navpvt_pub.publish(navpvt_msg)
                                 
-                                elif idy == 'ESF-MEAS':
-                                    # 16: accelX
-                                    # 17: accelY
-                                    # 18: accelZ
-                                    meas_raw = {}
-                                    for i in range(parsed_data.numMeas):
-                                        data_type = eval(f'parsed_data.dataType_0{i+1}')
-                                        data_val = eval(f'parsed_data.dataField_0{i+1}')
-                                        if data_type == 16:
-                                            meas_raw['accelX'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
-                                        if data_type == 17:
-                                            meas_raw['accelY'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
-                                        if data_type == 18:
-                                            meas_raw['accelZ'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
-                                        if data_type == 14:
-                                            meas_raw['gyroX'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
-                                        if data_type == 13:
-                                            meas_raw['gyroY'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
-                                        if data_type == 5:
-                                            meas_raw['gyroZ'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
-                                        if data_type == 12:
-                                            meas_raw['gyroTemp'] = float(hex_to_signed_24bit(hex(data_val))) / 100
+                                # elif idy == 'ESF-MEAS':
+                                #     # 16: accelX
+                                #     # 17: accelY
+                                #     # 18: accelZ
+                                #     meas_raw = {}
+                                #     for i in range(parsed_data.numMeas):
+                                #         data_type = eval(f'parsed_data.dataType_0{i+1}')
+                                #         data_val = eval(f'parsed_data.dataField_0{i+1}')
+                                #         if data_type == 16:
+                                #             meas_raw['accelX'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
+                                #         if data_type == 17:
+                                #             meas_raw['accelY'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
+                                #         if data_type == 18:
+                                #             meas_raw['accelZ'] = float(hex_to_signed_24bit(hex(data_val))) / 1024.0
+                                #         if data_type == 14:
+                                #             meas_raw['gyroX'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
+                                #         if data_type == 13:
+                                #             meas_raw['gyroY'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
+                                #         if data_type == 5:
+                                #             meas_raw['gyroZ'] = float(hex_to_signed_24bit(hex(data_val))) / 4096.0
+                                #         if data_type == 12:
+                                #             meas_raw['gyroTemp'] = float(hex_to_signed_24bit(hex(data_val))) / 100
                                     
-                                    if meas_raw.keys() == {'accelX', 'accelY', 'accelZ'}:
-                                        accel_msg = String()
-                                        accel_msg.data = str(f"{meas_raw['accelX']},{meas_raw['accelY']},{meas_raw['accelZ']}")
-                                        self.accel_pub.publish(accel_msg)
-                                    elif meas_raw.keys() == {'gyroX', 'gyroY', 'gyroZ', 'gyroTemp'}:
-                                        gyro_msg = String()
-                                        gyro_msg.data = str(f"{meas_raw['gyroX']},{meas_raw['gyroY']},{meas_raw['gyroZ']},{meas_raw['gyroTemp']}")
-                                        self.gyro_pub.publish(gyro_msg)
-                                    pass
+                                #     if meas_raw.keys() == {'accelX', 'accelY', 'accelZ'}:
+                                #         accel_msg = String()
+                                #         accel_msg.data = str(f"{meas_raw['accelX']},{meas_raw['accelY']},{meas_raw['accelZ']}")
+                                #         self.accel_pub.publish(accel_msg)
+                                #     elif meas_raw.keys() == {'gyroX', 'gyroY', 'gyroZ', 'gyroTemp'}:
+                                #         gyro_msg = String()
+                                #         gyro_msg.data = str(f"{meas_raw['gyroX']},{meas_raw['gyroY']},{meas_raw['gyroZ']},{meas_raw['gyroTemp']}")
+                                #         self.gyro_pub.publish(gyro_msg)
+                                #     pass
                                 
-                                elif idy == 'NAV-SAT':
-                                    pass
+                                # elif idy == 'NAV-SAT':
+                                #     pass
 
-                                elif idy == 'NAV-DOP':
-                                    # print(parsed_data)
-                                    pass
+                                # elif idy == 'NAV-DOP':
+                                #     # print(parsed_data)
+                                #     pass
 
 
                         # else: 
