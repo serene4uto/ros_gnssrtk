@@ -1,5 +1,5 @@
 pyrtcm
-pygnssutils==1.0.15
+pygnssutils
 pyubx2
 haversine
 pyproj
