@@ -103,33 +103,37 @@ class GnssRtkPub(Node):
                     self.stop_event.is_set()
                 ):  # run until user presses CTRL-C
                     
-                    parsed_data = self.receive_queue.get()
-                    
-                    if parsed_data:
-                        # print(parsed_data)
+                    try:
+                        parsed_data = self.receive_queue.get()
 
-                        if hasattr(parsed_data, "identity"):
-                            idy = parsed_data.identity
+                        if parsed_data:
+                            # print(parsed_data)
 
-                            # if idy not in idy_list:
-                            #     idy_list.append(idy)
-                            #     print(idy_list)
-                            
-                            if idy == 'NAV-PVT':
-                                if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "hMSL"):
-                                    lat = parsed_data.lat
-                                    lon = parsed_data.lon
-                                    alt = parsed_data.hMSL / 1000.0 # convert to meters
+                            if hasattr(parsed_data, "identity"):
+                                idy = parsed_data.identity
 
-                                    navsat_fix_msg = NavSatFix()
-                                    t = self.get_clock().now()
-                                    navsat_fix_msg.header.stamp = t.to_msg()
-                                    navsat_fix_msg.header.frame_id = "gps_sensor"
-                                    navsat_fix_msg.latitude = lat
-                                    navsat_fix_msg.longitude = lon
-                                    navsat_fix_msg.altitude = alt
+                                # if idy not in idy_list:
+                                #     idy_list.append(idy)
+                                #     print(idy_list)
 
-                                    self.gnss_pub.publish(navsat_fix_msg)  
+                                if idy == 'NAV-PVT':
+                                    if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "hMSL"):
+                                        lat = parsed_data.lat
+                                        lon = parsed_data.lon
+                                        alt = parsed_data.hMSL / 1000.0 # convert to meters
+
+                                        navsat_fix_msg = NavSatFix()
+                                        t = self.get_clock().now()
+                                        navsat_fix_msg.header.stamp = t.to_msg()
+                                        navsat_fix_msg.header.frame_id = "gps_sensor"
+                                        navsat_fix_msg.latitude = lat
+                                        navsat_fix_msg.longitude = lon
+                                        navsat_fix_msg.altitude = alt
+
+                                        self.gnss_pub.publish(navsat_fix_msg)  
+                    except Exception as e:
+                        # print(e)
+                        pass
 
                                     # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
                                     # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
