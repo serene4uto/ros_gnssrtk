@@ -98,8 +98,6 @@ class GnssRtkPub(Node):
                 #         output=self.send_queue,
                 #     )
 
-                idy_list = []
-
                 while (
                     # streaming and not 
                     self.stop_event.is_set()
@@ -136,9 +134,9 @@ class GnssRtkPub(Node):
                                     # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
                                     # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
 
-                                    navpvt_msg = String()
-                                    navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
-                                    self.navpvt_pub.publish(navpvt_msg)
+                                    # navpvt_msg = String()
+                                    # navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
+                                    # self.navpvt_pub.publish(navpvt_msg)
                                 
                                 # elif idy == 'ESF-MEAS':
                                 #     # 16: accelX
@@ -184,7 +182,7 @@ class GnssRtkPub(Node):
                         # else: 
                         #     sleep(0.5)
 
-                    sleep(1)
+                sleep(1)
         except KeyboardInterrupt:
             self.stop_event.set()
             print("Terminated by user")
