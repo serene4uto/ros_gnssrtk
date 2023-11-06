@@ -73,7 +73,7 @@ class GnssRtkPub(Node):
                 idonly=True,
                 enableubx=True,
                 showhacc=True,
-                verbose=False,
+                verbose=True,
             ) as gna:
                 gna.run()
                 # sleep(2)  # wait for receiver to output at least 1 navigation solution
