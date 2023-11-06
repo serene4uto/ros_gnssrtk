@@ -262,7 +262,7 @@ class GNSSSkeletonApp:
             cfg_data.append((f"CFG_{port_type}OUTPROT_NMEA", not enable))
             cfg_data.append((f"CFG_{port_type}OUTPROT_UBX", enable))
             cfg_data.append((f"CFG_MSGOUT_UBX_NAV_PVT_{port_type}", enable))
-            cfg_data.append((f"CFG_MSGOUT_UBX_ESF_MEAS_{port_type}", enable))
+            # cfg_data.append((f"CFG_MSGOUT_UBX_ESF_MEAS_{port_type}", enable))
 
             # cfg_data.append((f"CFG_MSGOUT_UBX_NAV_SAT_{port_type}", enable * 4))
             # cfg_data.append((f"CFG_MSGOUT_UBX_NAV_DOP_{port_type}", enable * 4))

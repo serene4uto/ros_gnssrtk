@@ -73,39 +73,39 @@ class GnssRtkPub(Node):
                 idonly=True,
                 enableubx=True,
                 showhacc=True,
-                verbose=True,
+                verbose=False,
             ) as gna:
                 gna.run()
                 sleep(2)  # wait for receiver to output at least 1 navigation solution
 
-                # print(f"Starting NTRIP client on {NTRIP_SERVER}:{NTRIP_PORT}...\n")
-                # with GNSSNTRIPClient(gna, verbosity=VERBOSITY_LOW) as gnc:
-                #     streaming = gnc.run(
-                #         ipprot=IPPROT,
-                #         server=NTRIP_SERVER,
-                #         port=NTRIP_PORT,
-                #         flowinfo=FLOWINFO,
-                #         scopeid=SCOPEID,
-                #         mountpoint=MOUNTPOINT,
-                #         ntripuser=NTRIP_USER,  # pygnssutils>=1.0.12
-                #         ntrippassword=NTRIP_PASSWORD,  # pygnssutils>=1.0.12
-                #         # reflat=REFLAT,
-                #         # reflon=REFLON,
-                #         # refalt=REFALT,
-                #         # refsep=REFSEP,
-                #         # ggamode=GGAMODE,
-                #         ggainterval=GGAINT,
-                #         output=self.send_queue,
-                #     )
+                print(f"Starting NTRIP client on {NTRIP_SERVER}:{NTRIP_PORT}...\n")
+                with GNSSNTRIPClient(gna, verbosity=VERBOSITY_LOW) as gnc:
+                    streaming = gnc.run(
+                        ipprot=IPPROT,
+                        server=NTRIP_SERVER,
+                        port=NTRIP_PORT,
+                        flowinfo=FLOWINFO,
+                        scopeid=SCOPEID,
+                        mountpoint=MOUNTPOINT,
+                        ntripuser=NTRIP_USER,  # pygnssutils>=1.0.12
+                        ntrippassword=NTRIP_PASSWORD,  # pygnssutils>=1.0.12
+                        # reflat=REFLAT,
+                        # reflon=REFLON,
+                        # refalt=REFALT,
+                        # refsep=REFSEP,
+                        # ggamode=GGAMODE,
+                        ggainterval=GGAINT,
+                        output=self.send_queue,
+                    )
 
-                while (
-                    # streaming and not 
-                    self.stop_event.is_set()
-                ):  # run until user presses CTRL-C
-                    
-                    try:
+                    idy_list = []
+
+                    while (
+                        streaming and not self.stop_event.is_set()
+                    ):  # run until user presses CTRL-C
+                        
                         parsed_data = self.receive_queue.get()
-
+                        
                         if parsed_data:
                             # print(parsed_data)
 
@@ -115,7 +115,7 @@ class GnssRtkPub(Node):
                                 # if idy not in idy_list:
                                 #     idy_list.append(idy)
                                 #     print(idy_list)
-
+                                
                                 if idy == 'NAV-PVT':
                                     if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "hMSL"):
                                         lat = parsed_data.lat
@@ -131,16 +131,13 @@ class GnssRtkPub(Node):
                                         navsat_fix_msg.altitude = alt
 
                                         self.gnss_pub.publish(navsat_fix_msg)  
-                    except Exception as e:
-                        # print(e)
-                        pass
 
-                                    # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
-                                    # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
+                                        # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
+                                        # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
 
-                                    # navpvt_msg = String()
-                                    # navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
-                                    # self.navpvt_pub.publish(navpvt_msg)
+                                        # navpvt_msg = String()
+                                        # navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
+                                        # self.navpvt_pub.publish(navpvt_msg)
                                 
                                 # elif idy == 'ESF-MEAS':
                                 #     # 16: accelX
@@ -186,7 +183,7 @@ class GnssRtkPub(Node):
                         # else: 
                         #     sleep(0.5)
 
-                sleep(1)
+                    sleep(1)
         except KeyboardInterrupt:
             self.stop_event.set()
             print("Terminated by user")
