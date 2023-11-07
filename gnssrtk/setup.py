@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'ntrip_ros'
+package_name = 'gnssrtk_ros'
 
 setup(
     name=package_name,
@@ -14,13 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='root',
-    maintainer_email='root@todo.todo',
+    maintainer_email='nguyenhatrung411@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rtcm_pub_node = ntrip_ros.rtcm_pub:main',
+            'gnssrtk_pub = gnssrtk_ros.gnssrtk_pub:main'
         ],
     },
 )
