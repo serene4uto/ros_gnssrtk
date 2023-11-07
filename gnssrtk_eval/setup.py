@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'error_eval'
+package_name = 'gnssrtk_eval'
 
 setup(
     name=package_name,
@@ -13,14 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='root',
+    maintainer='Ha Trung Nguyen',
     maintainer_email='nguyenhatrung411@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'error_eval_pub = error_eval.error_eval_pub:main',
+            'gnssrtk_eval_pub = gnssrtk_eval.gnssrtk_eval_pub:main',
         ],
     },
 )
