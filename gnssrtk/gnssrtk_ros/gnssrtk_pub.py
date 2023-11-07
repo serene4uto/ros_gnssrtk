@@ -54,6 +54,11 @@ def hex_to_signed_24bit(hex_str):
 class GnssRtkPub(Node):
     def __init__(self):
         super().__init__('gnssrtk_pub')
+
+        # declare params
+        self.declare_parameter('serial_port', SERIAL_PORT)
+
+
         self.gnss_pub = self.create_publisher(NavSatFix, '/fix', 10)
         # self.navpvt_pub = self.create_publisher(String, '/navpvt', 10)  # for debugging
         # self.accel_pub = self.create_publisher(String, '/esfmeas/accel', 10)  # for debugging
