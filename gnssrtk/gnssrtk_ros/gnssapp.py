@@ -24,7 +24,7 @@ Created on 27 Jul 2023
 Modified on 25 Sep 2023
 
 :original: semuadmin
-:modyfied: nguyenhatrung411
+:modified-by: nguyenhatrung411
 :copyright: SEMU Consulting © 2023
 :license: BSD 3-Clause
 """
