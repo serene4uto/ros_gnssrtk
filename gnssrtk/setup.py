@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'gnssrtk_ros'
+package_name = 'gnssrtk'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'gnssrtk_pub = gnssrtk_ros.gnssrtk_pub:main'
+            'gnssrtk_pub = gnssrtk.gnssrtk_pub:main'
         ],
     },
 )

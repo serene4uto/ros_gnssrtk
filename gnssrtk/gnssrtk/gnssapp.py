@@ -85,6 +85,8 @@ class GNSSSkeletonApp:
         self.alt = 0
         self.sep = 0
 
+        self.enableesfmeas= kwargs.get("enableesfmeas", False)
+
         self.receivequeue =  kwargs.get("receivequeue", None)
         self.verbose = kwargs.get("verbose", False)
         
@@ -111,6 +113,7 @@ class GNSSSkeletonApp:
         """
 
         self.enable_ubx(self.enableubx)
+        self.enable_esfmeas(self.enableesfmeas)
 
         self.stream = Serial(self.port, self.baudrate, timeout=self.timeout)
         self.connected = CONNECTED
@@ -266,6 +269,16 @@ class GNSSSkeletonApp:
             # cfg_data.append((f"CFG_MSGOUT_UBX_NAV_SAT_{port_type}", enable * 4))
             # cfg_data.append((f"CFG_MSGOUT_UBX_NAV_DOP_{port_type}", enable * 4))
             # cfg_data.append((f"CFG_MSGOUT_UBX_RXM_RTCM_{port_type}", enable))
+
+        msg = UBXMessage.config_set(layers, transaction, cfg_data)
+        self.sendqueue.put((msg.serialize(), msg))
+    
+    def enable_esfmeas(self, enable: bool):
+        layers = 1
+        transaction = 0
+        cfg_data = []
+        for port_type in ("USB", "UART1"):
+            cfg_data.append((f"CFG_MSGOUT_UBX_ESF_MEAS_{port_type}", enable))
 
         msg = UBXMessage.config_set(layers, transaction, cfg_data)
         self.sendqueue.put((msg.serialize(), msg))

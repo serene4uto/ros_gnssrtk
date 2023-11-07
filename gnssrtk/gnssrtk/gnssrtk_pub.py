@@ -55,14 +55,61 @@ class GnssRtkPub(Node):
     def __init__(self):
         super().__init__('gnssrtk_pub')
 
-        # declare params
-        self.declare_parameter('serial_port', SERIAL_PORT)
+        # Declare params
+        self.declare_parameter("debug", 0)
+        self.declare_parameter("device", "/dev/ttyACM0")
+        self.declare_parameter("frame_id", "gnss")
+        self.declare_parameter("ntrip_client.ntrip_user", "kde1054@naver.com")
+        self.declare_parameter("ntrip_client.ntrip_password", "gnss")
+        self.declare_parameter("ntrip_client.ntrip_server", "www.gnssdata.or.kr")
+        self.declare_parameter("ntrip_client.ntrip_port", 2101)
+        self.declare_parameter("ntrip_client.mount_point", "TEGN-RTCM32")
+        self.declare_parameter("publish.nav", True)
+        self.declare_parameter("publish.imu", True)
 
+        # Get parameters
+        self.debug = self.get_parameter('debug').get_parameter_value().integer_value
+        self.device = self.get_parameter('device').get_parameter_value().string_value
+        self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
+        self.ntrip_user = self.get_parameter('ntrip_client.ntrip_user').get_parameter_value().string_value
+        self.ntrip_password = self.get_parameter('ntrip_client.ntrip_password').get_parameter_value().string_value
+        self.ntrip_server = self.get_parameter('ntrip_client.ntrip_server').get_parameter_value().string_value
+        self.ntrip_port = self.get_parameter('ntrip_client.ntrip_port').get_parameter_value().integer_value
+        self.mount_point = self.get_parameter('ntrip_client.mount_point').get_parameter_value().string_value
+        self.publish_nav = self.get_parameter('publish.nav').get_parameter_value().bool_value
+        self.publish_imu = self.get_parameter('publish.imu').get_parameter_value().bool_value
+        # self.publish_navpvt = self.get_parameter('publish.navpvt').get_parameter_value().bool_value
 
-        self.gnss_pub = self.create_publisher(NavSatFix, '/fix', 10)
+        # Print parameters
+        self.get_logger().info('Parameters: ')
+        self.get_logger().info(f'debug: {self.debug}')
+        self.get_logger().info(f'device: {self.device}')
+        self.get_logger().info(f'frame_id: {self.frame_id}')
+        self.get_logger().info(f'ntrip_user: {self.ntrip_user}')
+        self.get_logger().info(f'ntrip_password: {self.ntrip_password}')
+        self.get_logger().info(f'ntrip_server: {self.ntrip_server}')
+        self.get_logger().info(f'ntrip_port: {self.ntrip_port}')
+        self.get_logger().info(f'mount_point: {self.mount_point}')
+        self.get_logger().info(f'publish_nav: {self.publish_nav}')
+        self.get_logger().info(f'publish_imu: {self.publish_imu}')
+        # self.get_logger().info(f'publish_navpvt: {self.publish_navpvt}')
+
+        NTRIP_SERVER = self.ntrip_server
+        NTRIP_PORT = self.ntrip_port
+        NTRIP_USER = self.ntrip_user
+        NTRIP_PASSWORD = self.ntrip_password
+        MOUNTPOINT = self.mount_point
+
+        SERIAL_PORT = self.device
+
+        if self.publish_nav:
+            self.gnss_pub = self.create_publisher(NavSatFix, '/fix', 10)
+        if self.publish_imu:
+            self.accel_pub = self.create_publisher(String, '/esfmeas/accel', 10)
+            self.gyro_pub = self.create_publisher(String, '/esfmeas/gyro', 10)
+        
         # self.navpvt_pub = self.create_publisher(String, '/navpvt', 10)  # for debugging
-        # self.accel_pub = self.create_publisher(String, '/esfmeas/accel', 10)  # for debugging
-        # self.gyro_pub = self.create_publisher(String, '/esfmeas/gyro', 10)  # for debugging
+
 
         self.send_queue = Queue()
         self.receive_queue = Queue()
@@ -81,6 +128,7 @@ class GnssRtkPub(Node):
                 enableubx=True,
                 showhacc=True,
                 verbose=False,
+                enableesfmeas=self.publish_imu,
             ) as gna:
                 gna.run()
                 # sleep(2)  # wait for receiver to output at least 1 navigation solution
@@ -123,20 +171,44 @@ class GnssRtkPub(Node):
                                 #     idy_list.append(idy)
                                 #     print(idy_list)
                                 
-                                if idy == 'NAV-PVT':
+                                if idy == 'NAV-PVT' and self.publish_nav:
+                                    # print(parsed_data)
                                     if hasattr(parsed_data, "lat") and hasattr(parsed_data, "lon") and hasattr(parsed_data, "hMSL"):
                                         lat = parsed_data.lat
                                         lon = parsed_data.lon
-                                        alt = parsed_data.hMSL / 1000.0 # convert to meters
+                                        alt = parsed_data.height / 1000.0 # convert to meters
 
                                         navsat_fix_msg = NavSatFix()
                                         t = self.get_clock().now()
                                         navsat_fix_msg.header.stamp = t.to_msg()
-                                        navsat_fix_msg.header.frame_id = "gps_sensor"
+                                        navsat_fix_msg.header.frame_id = self.frame_id
                                         navsat_fix_msg.latitude = lat
                                         navsat_fix_msg.longitude = lon
                                         navsat_fix_msg.altitude = alt
 
+                                        # if parsed_data.gnssFixOK == 0:
+                                        #     navsat_fix_msg.status.status = -1
+                                        # elif parsed_data.gnssFixOK == 1:
+                                        #     navsat_fix_msg.status.status = 0
+                                        
+                                        #TODO: fixType
+                                        # if parsed_data.fixType == 0:
+                                        #     navsat_fix_msg.status.status = -1 # STATUS_NO_FIX
+                                        # if parsed_data.fixType == 1:
+                                        #     navsat_fix_msg.status.status = 6 # DR Only
+                                        # if parsed_data.fixType == 2:
+                                        #     navsat_fix_msg.status.status = 0 # STATUS_FIX
+                                        # if parsed_data.fixType == 3:
+                                        #     navsat_fix_msg.status.status = 3 # 3D_FIX
+                                        # if parsed_data.fixType == 4:
+                                        #     navsat_fix_msg.status.status = 4 # GNSS+DR
+                                        # if parsed_data.fixType == 5:
+                                        #     navsat_fix_msg.status.status = 5 # TIME_FIX
+                                        # if parsed_data.fixType == 6:
+                                        #     navsat_fix_msg.status.status = 6
+
+                                        #TODO: convert to covariance
+                                        
                                         self.gnss_pub.publish(navsat_fix_msg)  
 
                                         # self.get_logger().info(f"hAcc: {parsed_data.hAcc} mm, vAcc: {parsed_data.vAcc} mm, sAcc: {parsed_data.sAcc} mm, pDOP: {parsed_data.pDOP}, numSV: {parsed_data.numSV}")
@@ -146,7 +218,7 @@ class GnssRtkPub(Node):
                                         # navpvt_msg.data = str(f"{lat},{lon},{alt},{parsed_data.fixType},{parsed_data.hAcc},{parsed_data.vAcc},{parsed_data.pDOP},{parsed_data.numSV}")
                                         # self.navpvt_pub.publish(navpvt_msg)
                                 
-                                elif idy == 'ESF-MEAS':
+                                elif idy == 'ESF-MEAS' and self.publish_imu:
                                     # 16: accelX
                                     # 17: accelY
                                     # 18: accelZ

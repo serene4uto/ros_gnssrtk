@@ -1,4 +1,4 @@
-gnssrtk_ros:
+gnssrtk:
   ros__parameters:
     debug: 0
     device: /dev/ttyACM0
@@ -11,5 +11,6 @@ gnssrtk_ros:
       mount_point: TEGN-RTCM32
 
     publish:
-      nav: true
+      nav: false
       imu: false
+      # navpvt: false
